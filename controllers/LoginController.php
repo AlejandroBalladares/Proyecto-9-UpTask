@@ -8,7 +8,7 @@ use MVC\Router;
 
 class LoginController{
     public static function login(Router $router){
-        if($_SERVER['REQUEST_METHOD'] === '´POST'){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
             }
         $router->render('auth/login',[
@@ -59,22 +59,68 @@ class LoginController{
     }
 
     public static function olvide(Router $router){
-        
-        if($_SERVER['REQUEST_METHOD'] === '´POST'){
+        $alertas = [];
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $usuario = new Usuario($_POST);
+            $alertas = $usuario->validarEmail();
 
+            if(empty($alertas)){
+                $usuario = Usuario::where('email', $usuario->email);
+                /** @var Usuario $usuario */
+                if($usuario && $usuario->confirmado){
+                    $usuario->generarToken();
+                    unset($usuario->password2);
+
+                    $email = new Email($usuario->email, $usuario->nombre, $usuario->token);
+                    $email->enviarInstrucciones();
+
+                    Usuario::setAlerta('exito', 'Hemos enviado las instrucciones a tu mail');
+                    
+                }
+                else{
+                    Usuario::setAlerta('error', 'El usuario no existe o no está validado');
+                }
             }
+        }
+        $alertas = Usuario::getAlertas();
         $router->render('auth/olvide',[
             'titulo' => 'Olvidé mi password',
+            'alertas'=> $alertas,
         ]);
     }
     
     public static function restablecer(Router $router){
-        
-        if($_SERVER['REQUEST_METHOD'] === '´POST'){
+        $mostrar = true;
+        $token = s($_GET['token']);
+        if(!$token){
+            header('Location:/');
+        }
+        $usuario = Usuario::where('token', $token);
+        if(empty($usuario)){
+            Usuario::setAlerta('error', 'Token no valido');
+            $mostrar = false;
+        }
+        /** @var Usuario $usuario */
+       
 
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+                $usuario->sincronizar($_POST);
+                $alertas = $usuario->validarPassword();
+                if(empty($alertas)){
+                    $usuario->hashPassword();
+                    unset($usuario->password2);
+                    $usuario->token = null;
+                    $resultado = $usuario->guardar();
+                    if($resultado){
+                        header('Location:/');
+                    }
+                }
             }
+        $alertas = Usuario::getAlertas();
         $router->render('auth/restablecer',[
             'titulo' => 'Restablecer mi password',
+            'alertas'=> $alertas,
+            'mostrar'=>$mostrar,
         ]);
     }
 
