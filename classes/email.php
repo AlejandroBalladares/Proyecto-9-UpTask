@@ -43,11 +43,11 @@ class Email{
     public function enviarInstrucciones(){
         $mail = new PHPMailer();
         $mail->isSMTP();
-        $mail->Host = $_ENV['EMAIL_HOST'];
+        $mail->Host = 'sandbox.smtp.mailtrap.io';
         $mail->SMTPAuth = true;
-        $mail->Port = $_ENV['EMAIL_PORT'];
-        $mail->Username = $_ENV['EMAIL_USER'];
-        $mail->Password = $_ENV['EMAIL_PASSWORD'];
+        $mail->Port = 2525;
+        $mail->Username = '28a7fa8722a470';
+        $mail->Password = '78028dc4a46639';
 
         $mail->setFrom('cuentas@uptask.com');
         $mail->addAddress('cuentas@uptask.com', 'uptask.com');
@@ -56,8 +56,8 @@ class Email{
         $mail->isHTML(TRUE);
         $mail->CharSet = 'UTF-8';
         $contenido = "<html>";
-        $contenido .= "<p><strong>Hola " . $this->nombre . "</strong> has solicitado reestablecer tu password, sigue el siguiente enlace para hacerlo</p>";
-        $contenido .= "<p>Presiona Aqui: <a href= '" . "http://localhost:3000" . "/recuperar?token=" . $this->token . "'> Restablecer password </a> </p>";
+        $contenido .= "<p><strong>Hola " . $this->nombre . "</strong> Has solicitado reestablecer tu password, sigue el siguiente enlace para hacerlo</p>";
+        $contenido .= "<p>Presiona Aqui: <a href= '" . "http://localhost:3000" . "/restablecer?token=" . $this->token . "'> Restablecer password </a> </p>";
         $contenido .= "<p>Si no solicitaste esta cuenta, puedes ignorar este mensaje </p>";
         $contenido .= "</html>";
 
