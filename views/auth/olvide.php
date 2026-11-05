@@ -1,6 +1,4 @@
-<?php
-    /** @var Object $usuario  */
-?>
+<?php /** @var Object $usuario  */ ?>
 
 <div class="contenedor olvide">
     <?php include_once __DIR__ . '/../templates/nombre-sitio.php'; ?>
