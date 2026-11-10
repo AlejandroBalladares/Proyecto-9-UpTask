@@ -26,6 +26,8 @@ class LoginController{
                             $_SESSION['email'] = $usuario->email;
                             $_SESSION['login'] = true;
 
+                            header('Location: /dashboard');
+
                         }
                         else{
                             Usuario::setAlerta('error', 'Contraseña incorrecta');
@@ -41,7 +43,9 @@ class LoginController{
     }
     
     public static function logout(){
-        
+        session_start();
+        $_SESSION = [];
+        header('Location: /');
     }
 
     public static function crear(Router $router){
