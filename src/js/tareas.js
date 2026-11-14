@@ -37,7 +37,6 @@
                 setTimeout(()=>{
                     modal.remove();
                 }, 500);
-                modal.remove();
             }
         });
         document.querySelector('body').appendChild(modal);
