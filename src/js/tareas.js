@@ -38,7 +38,69 @@
                     modal.remove();
                 }, 500);
             }
+            if(e.target.classList.contains('submit-nueva-tarea')){
+                submitFormularioNuevaTarea();
+            };
         });
-        document.querySelector('body').appendChild(modal);
+        document.querySelector('.dashboard').appendChild(modal);
+    }
+
+    function submitFormularioNuevaTarea(){
+        const tarea = document.querySelector('#tarea').value.trim();
+        if(tarea === ''){
+            //mostrar alerta de error
+            mostrarAlerta('El nombre de la tarea es obligatiorio', 'error', document.querySelector('.formulario legend'));
+            return;
+        }
+        agregarTarea(tarea);
+    }
+
+    function mostrarAlerta(mensaje, tipo, referencia){
+        const alertaPrevia = document.querySelector('.alerta');
+        if(alertaPrevia){
+            alertaPrevia.remove();
+        }
+
+        const alerta = document.createElement('DIV');
+        alerta.classList.add('alerta', tipo);
+        alerta.textContent = mensaje;
+        
+        referencia.parentElement.insertBefore(alerta, referencia.nextElementSibling);
+
+        setTimeout(() => {
+            alerta.remove();
+        }, 5000);
+    }
+
+    async function agregarTarea(tarea){
+        const datos = new FormData();
+        datos.append('nombre', tarea);
+        datos.append('proyectoId', obtenerProyecto());
+
+        try {
+            const url = 'http://localhost:3000/api/tarea';
+            const respuesta = await fetch(url, {
+                method: 'POST',
+                body: datos
+            });
+            const resultado = await respuesta.json();
+            console.log(resultado);
+            mostrarAlerta(resultado.mensaje, resultado.tipo, document.querySelector('.formulario legend'));
+            
+            if(resultado.tipo === 'exito'){
+                const modal = document.querySelector('.modal');
+                setTimeout(() => {
+                    modal.remove();
+                }, 3000);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    function obtenerProyecto(){
+        const proyectoParams = new URLSearchParams(window.location.search);
+        const proyecto = Object.fromEntries(proyectoParams.entries());
+        return proyecto.id;
     }
 })();
