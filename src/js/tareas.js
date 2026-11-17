@@ -1,7 +1,71 @@
 (function(){
+
+    obtenerTareas();
     //boton para mostrar el modal de nueva tarea
     const nuevaTarea = document.querySelector('#agregar-tarea');
     nuevaTarea.addEventListener('click', mostrarFormnulario);
+    
+    async function obtenerTareas(){
+        try {
+            const id = obtenerProyecto();
+            const url = `/api/tareas?id=${id}`;
+            const respuesta = await fetch(url);
+            const resultado = await respuesta.json();
+            const {tareas} = resultado;
+            mostrarTareas(tareas);
+        } catch (error) {
+            consol.log(error);
+        }
+    }
+
+    function mostrarTareas(tareas){
+        if(tareas.length === 0){
+            const contenedorTareas = document.querySelector('#listado-tareas');
+            const textoNoTareas = document.createElement('LI');
+            textoNoTareas.textContent = 'No hay tareas';
+            textoNoTareas.classList.add('no-tareas');
+
+            contenedorTareas.appendChild(textoNoTareas);
+            return;
+        }
+        const estados = {
+            0: 'pendiente',
+            1: 'completa'
+        };
+
+        tareas.forEach(tarea => {
+            const contenedorTarea = document.createElement('LI');
+            contenedorTarea.dataset.tareaId = tarea.id;
+            contenedorTarea.classList.add('tarea');
+
+            const nombreTarea = document.createElement('P');
+            nombreTarea.textContent = tarea.nombre;
+
+            const opcionesDiv = document.createElement('DIV');
+            opcionesDiv.classList.add('opciones');
+
+            const btnEstadoTarea = document.createElement('BUTTON');
+            btnEstadoTarea.classList.add('estado-tarea');
+            btnEstadoTarea.classList.add(`${estados[tarea.estado]}`);
+            btnEstadoTarea.textContent = estados[tarea.estado];
+
+            const btnEliminarTarea = document.createElement('BUTTON');
+            btnEliminarTarea.classList.add('eliminar-tarea');
+            contenedorTarea.dataset.tareaId = tarea.id;
+            btnEliminarTarea.textContent = "Eliminar";
+
+            opcionesDiv.appendChild(btnEstadoTarea);
+            opcionesDiv.appendChild(btnEliminarTarea);
+
+            contenedorTarea.appendChild(nombreTarea);
+            contenedorTarea.appendChild(opcionesDiv);
+
+            const listadoTareas = document.querySelector('#listado-tareas');
+            listadoTareas.appendChild(contenedorTarea);
+
+
+        });
+    }
 
     function mostrarFormnulario(){
         const modal = document.createElement('DIV');
