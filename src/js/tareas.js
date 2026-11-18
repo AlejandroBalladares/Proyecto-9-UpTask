@@ -50,7 +50,9 @@
             btnEstadoTarea.classList.add('estado-tarea');
             btnEstadoTarea.classList.add(`${estados[tarea.estado]}`);
             btnEstadoTarea.textContent = estados[tarea.estado];
-
+            btnEstadoTarea.ondblclick = function(){
+                cambiarEstadoTarea({...tarea});
+            };
             const btnEliminarTarea = document.createElement('BUTTON');
             btnEliminarTarea.classList.add('eliminar-tarea');
             contenedorTarea.dataset.tareaId = tarea.id;
@@ -181,6 +183,33 @@
             listadoTareas.removeChild(listadoTareas.firstChild);
         }
     }   
+
+    function cambiarEstadoTarea(tarea){
+        const nuevoEstado = tarea.estado === "1" ? "0" : "1";
+        tarea.estado = nuevoEstado;
+        actualizarTarea(tarea);
+    }
+
+    async function actualizarTarea(tarea){
+        const {estado, id, nombre, proyectoId} = tarea;
+        const datos = new FormData();
+        datos.append('id', id);
+        datos.append('estado', estado);
+        datos.append('nombre', nombre);
+        datos.append('proyectoId', obtenerProyecto());
+
+        try {
+            const url = 'http://localhost:3000/api/tarea/actuallizar';
+            const respuesta = await fetch(url, {
+                method: 'POST',
+                body: datos
+            });
+            const resultado = await respuesta.json();
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
 
     function obtenerProyecto(){
         const proyectoParams = new URLSearchParams(window.location.search);
