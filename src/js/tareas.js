@@ -53,10 +53,14 @@
             btnEstadoTarea.ondblclick = function(){
                 cambiarEstadoTarea({...tarea});
             };
+            
             const btnEliminarTarea = document.createElement('BUTTON');
             btnEliminarTarea.classList.add('eliminar-tarea');
             contenedorTarea.dataset.tareaId = tarea.id;
             btnEliminarTarea.textContent = "Eliminar";
+            btnEliminarTarea.ondblclick = function(){
+                confirmarEliminarTarea({...tarea});
+            }
 
             opcionesDiv.appendChild(btnEstadoTarea);
             opcionesDiv.appendChild(btnEliminarTarea);
@@ -191,7 +195,7 @@
     }
 
     async function actualizarTarea(tarea){
-        const {estado, id, nombre, proyectoId} = tarea;
+        const {estado, id, nombre} = tarea;
         const datos = new FormData();
         datos.append('id', id);
         datos.append('estado', estado);
@@ -206,7 +210,6 @@
             const resultado = await respuesta.json();
 
             if(resultado.respuesta.tipo === 'exito'){
-                console.log(resultado);
                 mostrarAlerta(resultado.respuesta.mensaje, resultado.respuesta.tipo, document.querySelector('.contenedor-nueva-tarea'));
                 
                 tareas = tareas.map(tareaMemoria => {
@@ -217,11 +220,52 @@
                 });
                 mostrarTareas();
             }
-            
+
         } catch (error) {
             console.log(error);
         }
+    }
 
+    function confirmarEliminarTarea(tarea){
+        Swal.fire({
+            title: "¿Eliminar tarea?",
+            showCancelButton: true,
+            confirmButtonText: "Si",
+            cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    eliminarTarea(tarea);    
+                }
+            });
+    }
+
+    async function eliminarTarea(tarea) {
+        const {estado, id, nombre} = tarea;
+        const datos = new FormData();
+        datos.append('id', id);
+        datos.append('estado', estado);
+        datos.append('nombre', nombre);
+        datos.append('proyectoId', obtenerProyecto());
+        try {
+            const url = 'http://localhost:3000/api/tarea/eliminar';
+            const respuesta = await fetch(url, {
+                method: 'POST',
+                body: datos
+            });
+            const resultado = await respuesta.json();
+
+            if(resultado.resultado){
+                mostrarAlerta(resultado.mensaje, resultado.tipo, document.querySelector('.contenedor-nueva-tarea'));
+                
+                tareas = tareas.filter(tareaMemoria =>
+                    tareaMemoria.id !== tarea.id
+                );
+                mostrarTareas();
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     function obtenerProyecto(){
