@@ -51,18 +51,37 @@ class TareaController{
 
     public static function eliminar(){
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
-            
+            session_start();
+            $proyectoId = $_POST['proyectoId'];
+            $proyecto = Proyecto::where('url', $proyectoId);
+            /** @var Proyecto $proyecto */
+            if(!$proyecto || $proyecto->propietarioId !== $_SESSION['id']){
+                $respuesta = [
+                    'tipo'=>'error',
+                    'mensaje'=>'Hubo un error al eliminar la tarea'
+                ];
+                echo json_encode($respuesta);
+                return;
+            }
+
+            $tarea = new Tarea($_POST);
+            $tarea->proyectoId = $proyecto->id;
+            $resultado = $tarea->eliminar();
+            $resultado = [
+                'resultado' => $resultado,
+                'mensaje' => 'Eliminado correctamente',
+                'tipo' => 'exito'
+            ];
+            echo json_encode(['resultado'=>$resultado]);
+                
         }
     }
 
     public static function actualizar(){
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             session_start();
-            //debuguear($_POST);
-            //echo json_encode($_POST);
             $proyectoId = $_POST['proyectoId'];
             $proyecto = Proyecto::where('url', $proyectoId);
-            //echo json_encode(['proyecto'=> $proyecto]);
             /** @var Proyecto $proyecto */
             if(!$proyecto || $proyecto->propietarioId !== $_SESSION['id']){
                 $respuesta = [
@@ -89,6 +108,5 @@ class TareaController{
             }
         }
     }
-
     
 }
