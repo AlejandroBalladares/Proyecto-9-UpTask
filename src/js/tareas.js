@@ -4,7 +4,9 @@
     let tareas = [];
     //boton para mostrar el modal de nueva tarea
     const nuevaTarea = document.querySelector('#agregar-tarea');
-    nuevaTarea.addEventListener('click', mostrarFormnulario);
+    nuevaTarea.addEventListener('click', function(){
+        mostrarFormnulario(false);
+    });
     
     async function obtenerTareas(){
         try {
@@ -42,6 +44,9 @@
 
             const nombreTarea = document.createElement('P');
             nombreTarea.textContent = tarea.nombre;
+            nombreTarea.ondblclick = function(){
+                mostrarFormnulario(true, {...tarea});
+            }
 
             const opcionesDiv = document.createElement('DIV');
             opcionesDiv.classList.add('opciones');
@@ -75,23 +80,28 @@
         });
     }
 
-    function mostrarFormnulario(){
+    function mostrarFormnulario(editar = false, tarea = {}){
         const modal = document.createElement('DIV');
         modal.classList.add('modal');
+        console.log(tarea);
         modal.innerHTML = `
             <form class="formulario nueva-tarea"> 
-                <legend>Añade una nueva tarea</legend>
+                <legend>${editar ? 'Editar tarea' : 'Añade una nueva tarea' }</legend>
                     <div class="campo">
                         <label>Tarea</label>
                         <input
                             type="text"
                             name="tarea"
-                            placeholder="Añadir tarea al proyecto actual"
+                            placeholder="${tarea.nombre ? 'Editar la tarea' : 'Añadir tarea al proyecto actual'}"
                             id="tarea"
+                            value="${tarea.nombre ? tarea.nombre : ''}"
                         />
                     </div>
                     <div class="opciones">
-                        <input type="submit" class="submit-nueva-tarea" value="Añadir tarea" />
+                        <input type="submit" 
+                        class="submit-nueva-tarea" 
+                        value="${tarea.nombre ? 'Guardar cambios' : 'Añadir tarea'}" 
+                        />
                         <button type="button" class="cerrar-modal">Cancelar</button>
                     </div>
             </form>`;
@@ -111,20 +121,22 @@
                 }, 500);
             }
             if(e.target.classList.contains('submit-nueva-tarea')){
-                submitFormularioNuevaTarea();
+                const nombreTarea = document.querySelector('#tarea').value.trim();
+                if(nombreTarea === ''){
+                    //mostrar alerta de error
+                    mostrarAlerta('El nombre de la tarea es obligatiorio', 'error', document.querySelector('.formulario legend'));
+                    return;
+                }
+                if(editar){
+                    tarea.nombre = nombreTarea;
+                    actualizarTarea(tarea);
+                }
+                else{
+                    agregarTarea(nombreTarea);
+                }
             };
         });
         document.querySelector('.dashboard').appendChild(modal);
-    }
-
-    function submitFormularioNuevaTarea(){
-        const tarea = document.querySelector('#tarea').value.trim();
-        if(tarea === ''){
-            //mostrar alerta de error
-            mostrarAlerta('El nombre de la tarea es obligatiorio', 'error', document.querySelector('.formulario legend'));
-            return;
-        }
-        agregarTarea(tarea);
     }
 
     function mostrarAlerta(mensaje, tipo, referencia){
