@@ -18,3 +18,12 @@ if(cerrarMenuBtn){
         }, 1000)
     });
 }
+
+//Eliminar la clase mostrar si agrando la pantalla
+const anchoPantalla = document.body.clientWidth;
+window.addEventListener('resize', function(){
+    const anchoPantalla = document.body.clientWidth;
+    if(anchoPantalla >= 768){
+        sidebar.classList.remove('mostrar');
+    }
+})
