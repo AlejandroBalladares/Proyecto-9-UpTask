@@ -7,5 +7,5 @@
             <input type="submit" value="Crear proyecto">
         </form>
     </div>
-<?php include_once __DIR__ . '/header-dashboard.php' ?>
+<?php include_once __DIR__ . '/footer-dashboard.php' ?>
     
